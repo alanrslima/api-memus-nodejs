@@ -25,13 +25,13 @@ export class GalleryMysqlRepository implements GalleryRepository {
   async paginateByMemoryId(
     memoryId: EntityId,
     page: PositiveNumber,
-    perPage: PositiveNumber
+    perPage: PositiveNumber,
   ): Promise<GalleryDTO> {
     const offset = (page.getValue() - 1) * perPage.getValue();
     let query = `
       SELECT id, name, mimetype, url 
       FROM media_registry 
-      WHERE memory_id = ? AND status = "ready" 
+      WHERE memory_id = ? AND status = 'ready' 
       ORDER BY created_at DESC 
       LIMIT ? OFFSET ?`;
     const mediaResponse = await this.manager.query<MediaRegistryRow[]>(query, [
@@ -39,10 +39,10 @@ export class GalleryMysqlRepository implements GalleryRepository {
       perPage.getValue(),
       offset,
     ]);
-    query = `SELECT COUNT(*) as total FROM media_registry WHERE memory_id = ? AND status = "ready"`;
+    query = `SELECT COUNT(*) as total FROM media_registry WHERE memory_id = ? AND status = 'ready'`;
     const [countResponse] = await this.manager.query<{ total: string }[]>(
       query,
-      [memoryId.getValue()]
+      [memoryId.getValue()],
     );
     const storageR2Gateway = new StorageR2Gateway();
     const media = await Promise.all(
@@ -56,7 +56,7 @@ export class GalleryMysqlRepository implements GalleryRepository {
           mimetype: item.mimetype,
           url,
         };
-      })
+      }),
     );
     return {
       data: media,
