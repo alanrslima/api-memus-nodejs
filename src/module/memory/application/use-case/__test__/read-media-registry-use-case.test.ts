@@ -14,14 +14,14 @@ it("Should throw an error if the media was not founded", async () => {
   const readMediaRegistryUseCase = new ReadMediaRegistryUseCase(
     storageGateway,
     mediaRegistryRepository,
-    memoryMemoryRepository
+    memoryMemoryRepository,
   );
   expect(
     async () =>
       await readMediaRegistryUseCase.execute({
         mediaRegistryId: "123",
         session: { user: { id: "123" } },
-      })
+      }),
   ).rejects.toThrow();
 });
 
@@ -48,6 +48,7 @@ it("Should not allow to read media if user does not have permission", async () =
     mimetype: "image/png",
     personaId: "123",
     size: 123,
+    userId: "123",
   });
   const memoryMemoryRepository = new MemoryMemoryRepository([memory]);
   const mediaRegistryRepository = new MediaRegistryMemoryRepository([
@@ -56,14 +57,14 @@ it("Should not allow to read media if user does not have permission", async () =
   const readMediaRegistryUseCase = new ReadMediaRegistryUseCase(
     storageGateway,
     mediaRegistryRepository,
-    memoryMemoryRepository
+    memoryMemoryRepository,
   );
   expect(
     async () =>
       await readMediaRegistryUseCase.execute({
         mediaRegistryId: mediaRegistry.getId(),
         session: { user: { id: "1234" } },
-      })
+      }),
   ).rejects.toThrow(MediaRegistryForbiddenError);
 });
 
@@ -90,6 +91,7 @@ it("Should return url if the user has permissions to access the media", async ()
     mimetype: "image/png",
     personaId: "123",
     size: 123,
+    userId: "123",
   });
   const memoryMemoryRepository = new MemoryMemoryRepository([memory]);
   const mediaRegistryRepository = new MediaRegistryMemoryRepository([
@@ -98,7 +100,7 @@ it("Should return url if the user has permissions to access the media", async ()
   const readMediaRegistryUseCase = new ReadMediaRegistryUseCase(
     storageGateway,
     mediaRegistryRepository,
-    memoryMemoryRepository
+    memoryMemoryRepository,
   );
   const response = await readMediaRegistryUseCase.execute({
     mediaRegistryId: mediaRegistry.getId(),
