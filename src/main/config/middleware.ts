@@ -7,7 +7,6 @@ import { httpLogger } from "../middleware/http-logger";
 
 export const setupMiddleware = (app: Express): void => {
   app.use((req, res, next) => {
-    console.info(`[URL], ${req.originalUrl}`);
     if (req.originalUrl === "/api/memory/stripe-webhook") {
       next();
     } else {
