@@ -10,7 +10,7 @@ export const typeormDataSource = new DataSource({
   password: env.MYSQL_PASSWORD,
   database: env.MYSQL_DATABASE,
   migrationsRun: true,
-  synchronize: true,
-  logging: true,
+  synchronize: false,
+  logging: false,
   migrations: [join(__dirname, "mysql-migrations", "*.{ts,js}")],
 });
