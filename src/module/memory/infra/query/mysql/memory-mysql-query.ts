@@ -18,7 +18,7 @@ export class MemoryMysqlQuery implements MemoryQuery {
   private dataSource = MysqlDataSource.getInstance();
 
   async getGuest(
-    input: MemoryQueryGetGuestInput
+    input: MemoryQueryGetGuestInput,
   ): Promise<MemoryQueryGetGuestOutput> {
     const sql = `SELECT status, created_at as createdAt FROM memory_guest WHERE user_id = ? and memory_id = ?`;
     const [response] = await this.dataSource.query(sql, [
@@ -98,18 +98,18 @@ export class MemoryMysqlQuery implements MemoryQuery {
         if (item.coverImage) {
           const coverImage = await storageR2Gateway.getSignedGetUrl(
             item.coverImage,
-            { expiresIn: Number(env.READ_MEDIA_EXPIRES_IN) }
+            { expiresIn: Number(env.READ_MEDIA_EXPIRES_IN) },
           );
           return this.formatListResponse({ ...item, coverImage });
         }
         return this.formatListResponse(item);
-      })
+      }),
     );
     return data;
   }
 
   async resume(
-    input: MemoryQueryResumeInput
+    input: MemoryQueryResumeInput,
   ): Promise<MemoryQueryResumeOutput> {
     let sql = `SELECT 
       a.id, 
@@ -144,7 +144,7 @@ export class MemoryMysqlQuery implements MemoryQuery {
   }
 
   private async getImageUrl(
-    name?: string
+    name?: string,
   ): Promise<{ url: string; name: string } | undefined> {
     if (!name) return;
     const storageR2Gateway = new StorageR2Gateway();
@@ -155,7 +155,7 @@ export class MemoryMysqlQuery implements MemoryQuery {
   }
 
   async detail(
-    input: MemoryQueryDetailInput
+    input: MemoryQueryDetailInput,
   ): Promise<MemoryQueryDetailOutput | undefined> {
     let sql = `SELECT 
       a.id, 
@@ -212,7 +212,7 @@ export class MemoryMysqlQuery implements MemoryQuery {
           mimetype: item.mimetype,
           url,
         };
-      })
+      }),
     );
     const coverImage = await this.getImageUrl(memoryResponse.cover_image);
     sql = `SELECT 
@@ -249,11 +249,12 @@ export class MemoryMysqlQuery implements MemoryQuery {
       videosCount: memoryResponse.videos_count,
       photosCount: memoryResponse.photos_count,
       createdAt: memoryResponse.createdAt,
+      messages: [],
     };
   }
 
   async listGallery(
-    input: MemoryQueryListGalleryInput
+    input: MemoryQueryListGalleryInput,
   ): Promise<MemoryQueryListGalleryOutput> {
     const perPage = 50;
     const page = (input.page = 1);

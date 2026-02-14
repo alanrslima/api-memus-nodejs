@@ -3,10 +3,10 @@ export interface MemoryQuery {
   list(input: MemoryQueryListInput): Promise<MemoryQueryListOutput>;
   resume(input: MemoryQueryResumeInput): Promise<MemoryQueryResumeOutput>;
   detail(
-    input: MemoryQueryDetailInput
+    input: MemoryQueryDetailInput,
   ): Promise<MemoryQueryDetailOutput | undefined>;
   listGallery(
-    input: MemoryQueryListGalleryInput
+    input: MemoryQueryListGalleryInput,
   ): Promise<MemoryQueryListGalleryOutput>;
 }
 
@@ -110,6 +110,14 @@ export type MemoryQueryDetailOutput = {
     name: string;
     url: string;
   };
+  messages: {
+    user: {
+      name: string;
+      profileUrl: string;
+    };
+    message: string;
+    createdAt: Date;
+  }[];
 };
 
 export type MemoryQueryListGalleryInput = {

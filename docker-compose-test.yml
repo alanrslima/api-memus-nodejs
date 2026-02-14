@@ -16,8 +16,8 @@ services:
     expose:
       - "3306"
 
-  story-keep-api-integration:
-    container_name: story-keep-api
+  api-memus-nodejs-integration:
+    container_name: api-memus-nodejs
     build:
       context: .
       dockerfile: dockerfile.test
