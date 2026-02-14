@@ -198,7 +198,7 @@ export class MemoryMysqlQuery implements MemoryQuery {
       input.userId,
     ]);
     if (!memoryResponse) return undefined;
-    sql = `SELECT id, name, mimetype, url FROM media_registry WHERE memory_id = ? AND status = "ready" ORDER BY created_at DESC LIMIT 20`;
+    sql = `SELECT id, name, mimetype, url FROM media_registry WHERE memory_id = ? AND status = 'ready' ORDER BY created_at DESC LIMIT 20`;
     const mediaResponse = await this.dataSource.query(sql, [input.memoryId]);
     const storageR2Gateway = new StorageR2Gateway();
     const media = await Promise.all(
@@ -259,13 +259,13 @@ export class MemoryMysqlQuery implements MemoryQuery {
     const perPage = 50;
     const page = (input.page = 1);
     const offset = (page - 1) * perPage;
-    let sql = `SELECT id, name, mimetype, url FROM media_registry WHERE memory_id = ? AND status = "ready" ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+    let sql = `SELECT id, name, mimetype, url FROM media_registry WHERE memory_id = ? AND status = 'ready' ORDER BY created_at DESC LIMIT ? OFFSET ?`;
     const dataResponse = await this.dataSource.query(sql, [
       input.memoryId,
       perPage,
       offset,
     ]);
-    sql = `SELECT COUNT(*) as total FROM media_registry WHERE memory_id = ? AND status = "ready"`;
+    sql = `SELECT COUNT(*) as total FROM media_registry WHERE memory_id = ? AND status = 'ready'`;
     const [countResponse] = await this.dataSource.query(sql, [input.memoryId]);
     return {
       data: dataResponse,
