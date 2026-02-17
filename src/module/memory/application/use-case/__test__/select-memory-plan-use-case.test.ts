@@ -20,15 +20,15 @@ it("should select memory plan", async () => {
   const planRepository = new PlanMemoryRepository([plan]);
   const selectMemoryPlanUseCase = new SelectMemoryPlanUseCase(
     memoryRepository,
-    planRepository
+    planRepository,
   );
   await selectMemoryPlanUseCase.execute({
     memoryId: memory.getId(),
     planId: plan.getId(),
     userId: memory.getUserId(),
   });
-  expect(memoryRepository.data[0].getPlan()).toBeDefined();
-  expect(memoryRepository.data[0].getPlan()).toEqual(plan);
+  expect(memoryRepository.data[0].getSelectedPlanId()).toBeDefined();
+  expect(memoryRepository.data[0].getSelectedPlanId()).toEqual(plan.getId());
 });
 
 it("should not select a memory plan if its not in draft status", async () => {
@@ -47,7 +47,7 @@ it("should not select a memory plan if its not in draft status", async () => {
   const planRepository = new PlanMemoryRepository([plan]);
   const selectMemoryPlanUseCase = new SelectMemoryPlanUseCase(
     memoryRepository,
-    planRepository
+    planRepository,
   );
   const execute = async () =>
     await selectMemoryPlanUseCase.execute({

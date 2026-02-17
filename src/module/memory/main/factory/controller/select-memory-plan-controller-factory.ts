@@ -7,10 +7,10 @@ import { SelectMemoryPlanController } from "../../../presentation/controller/sel
 export const selectMemoryPlanControllerFactory = (): Controller => {
   const manager = MysqlDataSource.getInstance().getQueryRunner().manager;
   const memoryRepository = new MemoryMysqlRepository(manager);
-  const planRepository = new PlanMysqlRepository();
+  const planRepository = new PlanMysqlRepository(manager);
   const selectMemoryPlanUseCase = new SelectMemoryPlanUseCase(
     memoryRepository,
-    planRepository
+    planRepository,
   );
   const controller = new SelectMemoryPlanController(selectMemoryPlanUseCase);
   return controller;

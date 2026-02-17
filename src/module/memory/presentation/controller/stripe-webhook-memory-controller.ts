@@ -12,7 +12,7 @@ export class StripeWebhookMemoryController {
   async handle(
     request: Request,
     response: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     const sig = request.headers["stripe-signature"];
     const endpointSecret = env.STRIPE_ENDPOINT_SECRET;
@@ -33,12 +33,16 @@ export class StripeWebhookMemoryController {
       case "payment_intent.succeeded":
         const { memoryOrderId } = event?.data.object.metadata;
         confirmMemoryOrderUserCaseFactory()
-          .execute({ memoryOrderId })
+          .execute({
+            memoryOrderId,
+            provider: "stripe",
+            providerPaymentId: event.id,
+          })
           .then(console.info)
           .catch(console.error);
         break;
       case "payment_intent.created":
-        console.log("payment intent created");
+        console.log("payment intent created", event);
         break;
       case "payment_method.attached":
         const paymentMethod = event.data.object;

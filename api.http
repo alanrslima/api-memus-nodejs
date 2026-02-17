@@ -28,7 +28,7 @@ Content-Type: application/json
 
 ###
 
-@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NjM5MDUyMzQsImV4cCI6MTc2Mzk5MTYzNCwic3ViIjoie1widXNlcklkXCI6XCIwMTlhODg5My04YmRmLTcxNGUtYTdlYy05MGI5ZjEwMWQ0YmJcIn0ifQ.J3wExnM9oLx8i-xLIqM279Nfhu6KmhT1e97d_L1lwHs
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NzEyODAyNTgsImV4cCI6MTc3MTM2NjY1OCwic3ViIjoie1widXNlcklkXCI6XCIwMTljNjg4Ny1kNTQ0LTcxZDItOTYwYi01NGNjYmNhYjk4NDdcIn0ifQ.bVBmj6fbH7y4R3nyBSCEaBLvPJXHOZPrWfD-Cat2gxQ
 # @authToken = {{login.response.body.token}}
 
 ### Get user session
@@ -90,13 +90,13 @@ Content-Type: application/json
 Authorization: Bearer {{authToken}}
 
 {
-  "name": "Plano Básico",
+  "name": "Plano Premium",
   "description": "Até 1.000 fotos",
   "currencyCode": "BRL",
-  "priceCents": 900,
+  "priceCents": 1499,
   "photosLimit": 1000,
   "videosLimit": 0,
-  "position": 1
+  "position": 3
 }
 
 # {

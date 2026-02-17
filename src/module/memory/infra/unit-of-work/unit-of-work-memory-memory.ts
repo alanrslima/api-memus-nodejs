@@ -4,9 +4,8 @@ import { MemoryMemoryRepository } from "../repository/memory/memory-memory-repos
 import { MemoryOrderMemoryRepository } from "../repository/memory/memory-order-memory-repository";
 
 export class UnitOfWorkMemoryMemory<
-  TRepositories extends { [K in keyof MemoryRepositories]: any }
-> implements UnitOfWork<TRepositories>
-{
+  TRepositories extends { [K in keyof MemoryRepositories]: any },
+> implements UnitOfWork<TRepositories> {
   private repositories: TRepositories;
 
   constructor(initial?: Partial<TRepositories>) {

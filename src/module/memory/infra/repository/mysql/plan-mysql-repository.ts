@@ -1,15 +1,23 @@
-import { MysqlDataSource } from "../../../../common";
+import { EntityManager } from "typeorm";
 import { PlanRepository } from "../../../application/contract/repository/plan-repository";
 import { Discount } from "../../../domain/entity/discount";
 import { Plan } from "../../../domain/entity/plan";
 import { PlanNotFoundError } from "../../../error/plan-not-found-error";
 
 export class PlanMysqlRepository implements PlanRepository {
-  private dataSource = MysqlDataSource.getInstance();
+  private manager: EntityManager;
+
+  constructor(manager: EntityManager) {
+    this.manager = manager;
+  }
+
+  setManager(manager: EntityManager): void {
+    this.manager = manager;
+  }
 
   async create(plan: Plan): Promise<void> {
     const sql = `INSERT INTO memory_plan (id, name, description, currency_code, price_cents, photos_limit, videos_limit, discount_id, position) VALUES (?,?,?,?,?,?,?,?,?)`;
-    await this.dataSource.query(sql, [
+    await this.manager.query(sql, [
       plan.getId(),
       plan.getName(),
       plan.getDescription(),
@@ -24,7 +32,7 @@ export class PlanMysqlRepository implements PlanRepository {
 
   async getById(id: string): Promise<Plan> {
     const sql = `SELECT a.id, a.position, a.name, a.description, a.currency_code, a.price_cents, a.photos_limit, a.videos_limit, a.discount_id, b.id as discount_id, b.name as discount_name, b.percentage as discount_percentage FROM memory_plan a LEFT JOIN discount b ON a.discount_id = b.id WHERE a.id = ?`;
-    const [response] = await this.dataSource.query(sql, [id]);
+    const [response] = await this.manager.query(sql, [id]);
     if (!response) throw new PlanNotFoundError();
     let discount: Discount | undefined = undefined;
     if (response.discount_id) {
@@ -49,7 +57,7 @@ export class PlanMysqlRepository implements PlanRepository {
 
   async update(plan: Plan): Promise<void> {
     const sql = `UPDATE memory_plan SET name = ?, description = ?, currency_code = ?, price_cents = ?, photos_limit = ?, videos_limit = ?, discount_id = ?, position = ? WHERE id = ?`;
-    this.dataSource.query(sql, [
+    this.manager.query(sql, [
       plan.getName(),
       plan.getDescription(),
       plan.getCurrencyCode(),

@@ -8,6 +8,10 @@ export class PlanMemoryRepository implements PlanRepository {
     this.data = data || [];
   }
 
+  setManager(): void {
+    throw new Error("Method not implemented.");
+  }
+
   async create(plan: Plan): Promise<void> {
     this.data.push(plan);
   }
@@ -20,7 +24,7 @@ export class PlanMemoryRepository implements PlanRepository {
 
   async update(plan: Plan): Promise<void> {
     this.data = this.data.map((item) =>
-      item.getId() === plan.getId() ? plan : item
+      item.getId() === plan.getId() ? plan : item,
     );
   }
 }

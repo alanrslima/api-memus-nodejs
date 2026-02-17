@@ -1,12 +1,11 @@
 import { EntityManager } from "typeorm";
 import { MemoryRepository } from "../../../application/contract/repository/memory-repository";
-import { Discount } from "../../../domain/entity/discount";
 import { Guest } from "../../../domain/entity/guest";
 import { Image } from "../../../domain/entity/image";
 import { Memory } from "../../../domain/entity/memory";
-import { Plan } from "../../../domain/entity/plan";
 import { MemoryNotFoundError } from "../../../error/memory-not-found-error";
 import { Address } from "../../../../geolocation";
+import { MemoryMapper } from "./mapper/memory-mapper";
 
 export class MemoryMysqlRepository implements MemoryRepository {
   private manager: EntityManager;
@@ -58,23 +57,40 @@ export class MemoryMysqlRepository implements MemoryRepository {
   }
 
   async create(memory: Memory): Promise<void> {
-    let sql = `INSERT INTO memory (id, automatic_guest_approval, name, about, start_date, plan_id, user_id, status, privacy_mode, photos_count, videos_count, cover_image) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`;
+    const data = MemoryMapper.toPersistence(memory);
+    let sql = `INSERT INTO memory (
+      id, 
+      automatic_guest_approval, 
+      name, 
+      about, 
+      start_date, 
+      selected_plan_id, 
+      user_id, 
+      status, 
+      privacy_mode, 
+      photos_count, 
+      videos_count, 
+      photos_granted,
+      videos_granted,
+      cover_image
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
     await this.manager.query(sql, [
-      memory.getId(),
-      memory.getAutomaticGuestApproval(),
-      memory.getName(),
-      memory.getAbout(),
-      memory.getStartDate(),
-      memory.getPlan()?.getId(),
-      memory.getUserId(),
-      memory.getStatus(),
-      memory.getPrivacyMode(),
-      memory.getPhotosCount(),
-      memory.getVideosCount(),
-      memory.getCoverImageName(),
+      data.id,
+      data.automatic_guest_approval,
+      data.name,
+      data.about,
+      data.start_date,
+      data.selected_plan_id,
+      data.user_id,
+      data.status,
+      data.privacy_mode,
+      data.photos_count,
+      data.videos_count,
+      data.photos_granted,
+      data.videos_granted,
+      data.cover_image,
     ]);
     await this.insertOrUpdateAddress(memory);
-
     if (memory.getGuests().length) {
       const data = memory
         .getGuests()
@@ -95,7 +111,7 @@ export class MemoryMysqlRepository implements MemoryRepository {
       a.name,
       a.about,
       a.start_date,
-      a.plan_id,
+      a.selected_plan_id,
       a.user_id,
       a.status,
       a.automatic_guest_approval,
@@ -103,16 +119,6 @@ export class MemoryMysqlRepository implements MemoryRepository {
       a.cover_image,
       a.photos_count,
       a.videos_count,
-      b.name as plan_name,
-      b.description as plan_description,
-      b.currency_code as plan_currency,
-      b.price_cents as plan_price,
-      b.position as plan_position,
-      b.photos_limit as plan_photos_limit,
-      b.videos_limit as plan_videos_limit,
-      b.discount_id as plan_discount_id,
-      c.name as plan_discount_name,
-      c.percentage as plan_discount_percentage,
       d.id as address_id,
       d.address_line1 as address_address_line1,
       d.address_line2 as address_address_line2,
@@ -125,34 +131,10 @@ export class MemoryMysqlRepository implements MemoryRepository {
       d.longitude as address_longitude,
       d.latitude as address_latitude
     FROM memory a 
-    LEFT JOIN memory_plan b ON a.plan_id = b.id 
-    LEFT JOIN discount c ON b.discount_id = c.id
     LEFT JOIN memory_address d ON a.id = d.memory_id
     WHERE a.id = ?`;
     const [response] = await this.manager.query(sql, [id]);
     if (!response) throw new MemoryNotFoundError();
-    let discount;
-    if (response.plan_discount_id) {
-      discount = Discount.build({
-        id: response.xzplan_discount_id,
-        name: response.plan_discount_name,
-        percentage: response.plan_discount_percentage,
-      });
-    }
-    let plan: Plan | undefined;
-    if (response.plan_id) {
-      plan = Plan.build({
-        id: response.plan_id,
-        currencyCode: response.plan_currency,
-        description: response.plan_description,
-        name: response.plan_name,
-        priceCents: response.plan_price,
-        photosLimit: response.plan_photos_limit,
-        videosLimit: response.plan_videos_limit,
-        discount,
-        position: response.plan_position,
-      });
-    }
     let address: Address | undefined;
     if (response.address_id) {
       address = Address.build({
@@ -177,13 +159,13 @@ export class MemoryMysqlRepository implements MemoryRepository {
     return Memory.build({
       id: response.id,
       guests,
+      selectedPlanId: response.selected_plan_id,
       automaticGuestApproval: response.automatic_guest_approval,
       privacyMode: response.privacy_mode,
       startDate: response.start_date,
       about: response.about,
       name: response.name,
       photosCount: response.photos_count,
-      plan,
       status: response.status,
       userId: response.user_id,
       videosCount: response.videos_count,
@@ -200,20 +182,37 @@ export class MemoryMysqlRepository implements MemoryRepository {
   }
 
   async update(memory: Memory): Promise<void> {
-    let sql = `UPDATE memory SET automatic_guest_approval = ?, name = ?, about = ?, start_date = ?, plan_id = ?, privacy_mode = ?, user_id = ?, status = ?, photos_count = ?, videos_count = ?, cover_image = ? WHERE id = ?`;
+    let sql = `UPDATE memory SET 
+      automatic_guest_approval = ?, 
+      name = ?, 
+      about = ?, 
+      start_date = ?, 
+      privacy_mode = ?, 
+      user_id = ?, 
+      status = ?, 
+      selected_plan_id = ?,
+      photos_count = ?, 
+      videos_count = ?, 
+      photos_granted = ?, 
+      videos_granted = ?, 
+      cover_image = ? 
+    WHERE id = ?`;
+    const data = MemoryMapper.toPersistence(memory);
     await this.manager.query(sql, [
-      memory.getAutomaticGuestApproval(),
-      memory.getName(),
-      memory.getAbout(),
-      memory.getStartDate(),
-      memory.getPlan()?.getId(),
-      memory.getPrivacyMode(),
-      memory.getUserId(),
-      memory.getStatus(),
-      memory.getPhotosCount(),
-      memory.getVideosCount(),
-      memory.getCoverImageName(),
-      memory.getId(),
+      data.automatic_guest_approval,
+      data.name,
+      data.about,
+      data.start_date,
+      data.privacy_mode,
+      data.user_id,
+      data.status,
+      data.selected_plan_id,
+      data.photos_count,
+      data.videos_count,
+      data.photos_granted,
+      data.videos_granted,
+      data.cover_image,
+      data.id,
     ]);
     await this.insertOrUpdateAddress(memory);
     sql = `DELETE FROM memory_guest WHERE memory_id = ?`;

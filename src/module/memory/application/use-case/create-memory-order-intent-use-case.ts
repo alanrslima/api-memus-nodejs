@@ -8,24 +8,28 @@ import { UnitOfWorkMemory } from "../contract/unit-of-work-memory";
 export class CreateMemoryOrderIntentUseCase implements UseCase<Input, Output> {
   constructor(
     private readonly unitOfWorkMemory: UnitOfWorkMemory,
-    private readonly paymentGateway: PaymentGateway
+    private readonly paymentGateway: PaymentGateway,
   ) {}
 
   async execute(input: Input): Promise<Output> {
     const memory = await this.unitOfWorkMemory.execute(({ memoryRepository }) =>
-      memoryRepository.getById(input.memoryId)
+      memoryRepository.getById(input.memoryId),
     );
     if (memory.getUserId() !== input.userId) throw new ForbiddenError();
-    const plan = memory.getPlan();
+    const selectedPlanId = memory.getSelectedPlanId();
+    if (!selectedPlanId) throw new MemoryWithoutPlanError();
+    const plan = await this.unitOfWorkMemory.execute(({ planRepository }) =>
+      planRepository.getById(selectedPlanId),
+    );
     if (!plan) throw new MemoryWithoutPlanError();
     const memoryOrder = MemoryOrder.create({
+      memoryPlan: plan,
       memoryId: memory.getId(),
       userId: input.userId,
       discount: plan.getDiscountValue(),
       price: plan.getPriceCents(),
       total: plan.getPriceCents() - plan.getDiscountValue(),
       currencyCode: plan.getCurrencyCode(),
-      memoryPlanId: plan.getId(),
     });
     const { token } = await this.paymentGateway.createPaymentIntent({
       amount: plan.calculateFinalPrice(),
@@ -42,7 +46,7 @@ export class CreateMemoryOrderIntentUseCase implements UseCase<Input, Output> {
       async ({ memoryOrderRepository, memoryRepository }) => {
         await memoryOrderRepository.create(memoryOrder);
         await memoryRepository.update(memory);
-      }
+      },
     );
     return { token };
   }

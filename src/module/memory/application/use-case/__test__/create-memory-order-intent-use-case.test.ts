@@ -3,6 +3,7 @@ import { Memory } from "../../../domain/entity/memory";
 import { Plan } from "../../../domain/entity/plan";
 import { MemoryMemoryRepository } from "../../../infra/repository/memory/memory-memory-repository";
 import { MemoryOrderMemoryRepository } from "../../../infra/repository/memory/memory-order-memory-repository";
+import { PlanMemoryRepository } from "../../../infra/repository/memory/plan-memory-repository";
 import { UnitOfWorkMemoryMemory } from "../../../infra/unit-of-work/unit-of-work-memory-memory";
 import { CreateMemoryOrderIntentUseCase } from "../create-memory-order-intent-use-case";
 
@@ -20,12 +21,17 @@ it("should create a memory order intent", async () => {
   memory.selectPlan(plan);
   const memoryRepository = new MemoryMemoryRepository([memory]);
   const memoryOrderRepository = new MemoryOrderMemoryRepository();
-  const unitOfWorkMemory = new UnitOfWorkMemoryMemory();
-  unitOfWorkMemory.push({ memoryOrderRepository, memoryRepository });
+  const planRepository = new PlanMemoryRepository([plan]);
+  const unitOfWorkMemory = new UnitOfWorkMemoryMemory({
+    planRepository,
+    memoryRepository,
+    memoryOrderRepository,
+  });
+
   const paymentGateway = new PaymentMemoryGateway();
   const createMemoryOrderIntentUseCase = new CreateMemoryOrderIntentUseCase(
     unitOfWorkMemory,
-    paymentGateway
+    paymentGateway,
   );
   expect(memoryRepository.data[0].getStatus()).toEqual("DRAFT");
   expect(memoryOrderRepository.data).toHaveLength(0);

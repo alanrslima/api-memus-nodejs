@@ -1,34 +1,33 @@
 import { UseCase } from "../../../common";
-import { MemoryOrderRepository } from "../contract/repository/memory-order-repository";
-import { MemoryRepository } from "../contract/repository/memory-repository";
-import { PlanRepository } from "../contract/repository/plan-repository";
+import { MemoryPayment } from "../../domain/entity/memory-payment";
+
+import { UnitOfWorkMemory } from "../contract/unit-of-work-memory";
 
 export class ConfirmMemoryOrderUseCase implements UseCase<Input, Output> {
-  constructor(
-    private readonly memoryOrderRepository: MemoryOrderRepository,
-    private readonly memoryRepository: MemoryRepository,
-    private readonly planRepository: PlanRepository
-  ) {}
+  constructor(private readonly unitOfWorkMemory: UnitOfWorkMemory) {}
 
   async execute(input: Input): Promise<Output> {
-    const memoryOrder = await this.memoryOrderRepository.getById(
-      input.memoryOrderId
+    await this.unitOfWorkMemory.execute(
+      async ({ memoryOrderRepository, memoryRepository }) => {
+        const memoryOrder = await memoryOrderRepository.getById(
+          input.memoryOrderId,
+        );
+        const memory = await memoryRepository.getById(
+          memoryOrder.getMemoryId(),
+        );
+        memoryOrder.confirmPayment();
+        memory.confirmPayment(memoryOrder.getMemoryPlan());
+        await memoryOrderRepository.update(memoryOrder);
+        await memoryRepository.update(memory);
+      },
     );
-    const memory = await this.memoryRepository.getById(
-      memoryOrder.getMemoryId()
-    );
-    const plan = await this.planRepository.getById(
-      memoryOrder.getMemoryPlanId()
-    );
-    memoryOrder.confirmPayment();
-    memory.confirmPayment(plan);
-    await this.memoryOrderRepository.update(memoryOrder);
-    await this.memoryRepository.update(memory);
   }
 }
 
 export type Input = {
   memoryOrderId: string;
+  provider: string;
+  providerPaymentId: string;
 };
 
 export type Output = void;

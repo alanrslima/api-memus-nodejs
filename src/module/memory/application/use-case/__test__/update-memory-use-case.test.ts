@@ -15,7 +15,7 @@ it("should not update a memory if the user is not the owner", async () => {
   });
   const updateMemoryUseCase = new UpdateMemoryUseCase(
     unitOfWorkMemory,
-    storageGateway
+    storageGateway,
   );
   expect(async () => {
     await updateMemoryUseCase.execute({
@@ -47,7 +47,7 @@ it("should update a memory", async () => {
   });
   const updateMemoryUseCase = new UpdateMemoryUseCase(
     unitOfWorkMemory,
-    storageGateway
+    storageGateway,
   );
 
   const address = {

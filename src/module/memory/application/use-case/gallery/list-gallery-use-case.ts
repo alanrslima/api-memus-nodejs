@@ -10,7 +10,7 @@ export class ListGalleryUseCase implements UseCase<Input, Output> {
     const page = input.page ?? 1;
     const peerPage = 50;
     const memory = await this.unitOfWorkMemory.execute(({ memoryRepository }) =>
-      memoryRepository.getById(input.memoryId)
+      memoryRepository.getById(input.memoryId),
     );
     if (!memory.canAccess(input.userId)) throw new ForbiddenError();
     const gallery = await this.unitOfWorkMemory.execute(
@@ -18,8 +18,8 @@ export class ListGalleryUseCase implements UseCase<Input, Output> {
         galleryRepository.paginateByMemoryId(
           new EntityId(input.memoryId),
           new PositiveNumber(Number(page)),
-          new PositiveNumber(Number(peerPage))
-        )
+          new PositiveNumber(Number(peerPage)),
+        ),
     );
     return gallery;
   }

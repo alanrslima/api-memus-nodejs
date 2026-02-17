@@ -5,7 +5,7 @@ services:
     container_name: mysql
     image: mysql:8.0
     environment:
-      MYSQL_DATABASE: "story_keep"
+      MYSQL_DATABASE: "memus"
       MYSQL_USER: "user"
       MYSQL_PASSWORD: "password"
       MYSQL_ROOT_PASSWORD: "password"
@@ -30,7 +30,7 @@ services:
       - MYSQL_HOST=mysql
       - MYSQL_USER=user
       - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=story_keep
+      - MYSQL_DATABASE=memus
       - MYSQL_PORT=3306
       - READ_MEDIA_EXPIRES_IN=3600
       - R2_STORAGE_ACCESS_KEY_ID=123

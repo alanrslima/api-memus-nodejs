@@ -5,38 +5,34 @@ import {
   TableForeignKey,
 } from "typeorm";
 
-export class CreateMemoryOrder1751738479927 implements MigrationInterface {
+export class MemoryPayment1771329032633 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: "memory_order",
+        name: "memory_payment",
         columns: [
           {
             name: "id",
             type: "varchar",
+            length: "45",
             isPrimary: true,
-            length: "45",
           },
           {
-            name: "memory_id",
+            name: "order_id",
             type: "varchar",
             length: "45",
             isNullable: false,
           },
           {
-            name: "user_id",
+            name: "provider",
             type: "varchar",
             length: "45",
             isNullable: false,
           },
           {
-            name: "plan_snapshot",
-            type: "JSON",
-          },
-          {
-            name: "status",
+            name: "provider_payment_id",
             type: "varchar",
-            length: "45",
+            length: "100",
             isNullable: true,
           },
           {
@@ -45,16 +41,14 @@ export class CreateMemoryOrder1751738479927 implements MigrationInterface {
             length: "3",
           },
           {
-            name: "price",
+            name: "amount",
             type: "integer",
           },
           {
-            name: "discount",
-            type: "integer",
-          },
-          {
-            name: "total",
-            type: "integer",
+            name: "status",
+            type: "varchar",
+            length: "45",
+            isNullable: true,
           },
           {
             name: "created_at",
@@ -72,21 +66,11 @@ export class CreateMemoryOrder1751738479927 implements MigrationInterface {
     );
 
     await queryRunner.createForeignKey(
-      "memory_order",
+      "memory_payment",
       new TableForeignKey({
-        name: "FK_memory_order_memory_id",
-        columnNames: ["memory_id"],
-        referencedTableName: "memory",
-        referencedColumnNames: ["id"],
-        onDelete: "RESTRICT",
-      }),
-    );
-    await queryRunner.createForeignKey(
-      "memory_order",
-      new TableForeignKey({
-        name: "FK_memory_order_user_id",
-        columnNames: ["user_id"],
-        referencedTableName: "user",
+        name: "FK_memory_payment_order_id",
+        columnNames: ["order_id"],
+        referencedTableName: "memory_order",
         referencedColumnNames: ["id"],
         onDelete: "RESTRICT",
       }),
@@ -95,10 +79,9 @@ export class CreateMemoryOrder1751738479927 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropForeignKey(
-      "memory_order",
-      "FK_memory_order_memory_id",
+      "memory_payment",
+      "FK_memory_payment_order_id",
     );
-    await queryRunner.dropForeignKey("memory_order", "FK_memory_order_user_id");
-    await queryRunner.dropTable("memory_order");
+    await queryRunner.dropTable("memory_payment");
   }
 }

@@ -1,10 +1,11 @@
 import { ID } from "../../../common";
 import { Order, OrderConstructor } from "../../../payment";
 import { OrderStatus } from "../../../payment/domain/enum/order-status";
+import { Plan } from "./plan";
 
 type MemoryOrderCreate = {
   memoryId: string;
-  memoryPlanId: string;
+  memoryPlan: Plan;
   userId: string;
   total: number;
   discount: number;
@@ -16,12 +17,12 @@ type MemoryOrderBuild = OrderConstructor & MemoryOrderCreate;
 
 export class MemoryOrder extends Order {
   private memoryId: ID;
-  private memoryPlanId: ID;
+  private memoryPlan: Plan;
 
   private constructor(props: MemoryOrderBuild) {
     super(props);
+    this.memoryPlan = props.memoryPlan;
     this.memoryId = new ID(props.memoryId);
-    this.memoryPlanId = new ID(props.memoryPlanId);
   }
 
   static create(props: MemoryOrderCreate): MemoryOrder {
@@ -40,7 +41,7 @@ export class MemoryOrder extends Order {
     return this.memoryId.getValue();
   }
 
-  getMemoryPlanId(): string {
-    return this.memoryPlanId.getValue();
+  getMemoryPlan(): Plan {
+    return this.memoryPlan;
   }
 }

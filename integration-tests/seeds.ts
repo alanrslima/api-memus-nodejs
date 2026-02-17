@@ -2,6 +2,8 @@
 // import {availablePermissions} from '../src/modules/nvg-node-auth';
 // import {randomUUID} from 'node:crypto';
 
+import { MysqlDataSource } from "../src/module/common";
+import { Plan } from "../src/module/memory/domain/entity/plan";
 import { requester } from "./helpers-integration";
 
 async function createAdminRole(): Promise<{ id: string }> {

@@ -1,11 +1,11 @@
 import { ID } from "../../../common";
 import { Address } from "../../../geolocation";
-import { GuestNotFoundError } from "../../error/guest-not-found-error";
 import { LimitMediaRegistryError } from "../../error/limit-media-registry-error";
 import { MemoryNotReadyError } from "../../error/memory-not-ready-error";
 import { MemoryStatus } from "../enum/memory-status";
 import { MemoryPrivacyMode } from "../value-object/memory-privacy-mode";
 import { Mimetype } from "../value-object/mimetype";
+import { NaturalNumber } from "../value-object/natural-number";
 import { Guest } from "./guest";
 import { Image } from "./image";
 import { MediaRegistry } from "./media-registry";
@@ -14,7 +14,7 @@ import { Plan } from "./plan";
 type CreateProps = {
   name?: string;
   startDate?: Date;
-  plan?: Plan;
+  selectedPlanId?: string;
   userId: string;
   address?: Address;
   about?: string;
@@ -22,6 +22,8 @@ type CreateProps = {
   isPrivate?: boolean;
   guests?: Array<Guest>;
   privacyMode?: string;
+  photosGranted?: number;
+  videosGranted?: number;
 };
 
 type BuildProps = CreateProps & {
@@ -37,7 +39,9 @@ export class Memory {
   private id: ID;
   private name?: string;
   private startDate?: Date;
-  private plan?: Plan;
+  // private plan?: Plan;
+  /** ID do plano selecionado durante a criação do album de memorias */
+  private selectedPlanId?: ID;
   private userId: ID;
   private address?: Address;
   private coverImage?: Image;
@@ -47,13 +51,19 @@ export class Memory {
   private privacyMode: MemoryPrivacyMode;
   private about?: string;
   private automaticGuestApproval: boolean;
+  /** Quantidade máxima de fotos disponível no album de memorias após contratação do plano */
+  private photosGranted?: NaturalNumber;
+  /** Quantidade máxima de videos disponível no album de memorias após contratação do plano */
+  private videosGranted?: NaturalNumber;
 
   private guests: Array<Guest> = [];
 
   private constructor(props: BuildProps) {
     this.id = new ID(props.id);
     this.name = props.name;
-    this.plan = props.plan;
+    this.selectedPlanId = props.selectedPlanId
+      ? new ID(props.selectedPlanId)
+      : undefined;
     this.startDate = props.startDate;
     this.userId = new ID(props.userId);
     this.status = props.status;
@@ -65,6 +75,12 @@ export class Memory {
     this.privacyMode = new MemoryPrivacyMode(props.privacyMode);
     this.about = props.about;
     this.automaticGuestApproval = props.automaticGuestApproval;
+    this.photosGranted = props.photosGranted
+      ? new NaturalNumber(props.photosGranted)
+      : undefined;
+    this.videosGranted = props.videosGranted
+      ? new NaturalNumber(props.videosGranted)
+      : undefined;
   }
 
   static create(props: CreateProps) {
@@ -153,6 +169,14 @@ export class Memory {
     return this.name;
   }
 
+  getPhotosGranted(): number | undefined {
+    return this.photosGranted?.getValue();
+  }
+
+  getVideosGranted(): number | undefined {
+    return this.videosGranted?.getValue();
+  }
+
   getStatus() {
     return this.status;
   }
@@ -185,8 +209,8 @@ export class Memory {
     return this.about;
   }
 
-  getPlan(): Plan | undefined {
-    return this.plan;
+  getSelectedPlanId(): string | undefined {
+    return this.selectedPlanId?.getValue();
   }
 
   getPrivacyMode(): string {
@@ -222,7 +246,7 @@ export class Memory {
   }
 
   selectPlan(plan: Plan) {
-    this.plan = plan;
+    this.selectedPlanId = new ID(plan.getId());
   }
 
   setCoverImage(coverImage: Image) {
@@ -230,7 +254,8 @@ export class Memory {
   }
 
   confirmPayment(plan: Plan) {
-    this.plan = plan;
+    this.videosGranted = new NaturalNumber(plan.getVideosLimit());
+    this.photosGranted = new NaturalNumber(plan.getPhotosLimit());
     this.status = MemoryStatus.ACTIVE;
   }
 
@@ -278,14 +303,13 @@ export class Memory {
   }
 
   private isFull(mimetype: string): boolean {
-    if (!this.plan) throw new Error("Plan not selected");
     const type = new Mimetype(mimetype);
     if (type.isPhoto()) {
-      if (this.plan.getPhotosLimit() === undefined) return false;
-      return this.photosCount > this.plan.getPhotosLimit()!;
+      if (!this.photosGranted) return false;
+      return this.photosCount > this.photosGranted.getValue();
     } else if (type.isVideo()) {
-      if (this.plan.getVideosLimit() === undefined) return false;
-      return this.videosCount > this.plan.getVideosLimit()!;
+      if (this.videosGranted === undefined) return false;
+      return this.videosCount > this.videosGranted.getValue();
     }
     return true;
   }

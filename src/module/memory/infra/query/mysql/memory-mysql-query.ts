@@ -190,7 +190,7 @@ export class MemoryMysqlQuery implements MemoryQuery {
       c.longitude as address_longitude,
       c.latitude as address_latitude
     FROM memory a 
-    LEFT JOIN memory_plan b ON a.plan_id = b.id
+    LEFT JOIN memory_plan b ON a.selected_plan_id = b.id
     LEFT JOIN memory_address c ON a.id = c.memory_id
     WHERE a.id = ? and a.user_id = ?`;
     const [memoryResponse] = await this.dataSource.query(sql, [
@@ -270,7 +270,7 @@ export class MemoryMysqlQuery implements MemoryQuery {
     return {
       data: dataResponse,
       page: 1,
-      perPage: 50,
+      perPage,
       total: Number(countResponse.total),
     };
   }

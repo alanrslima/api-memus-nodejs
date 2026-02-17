@@ -98,4 +98,17 @@ export class Plan {
     const discountValue = this.getDiscountValue();
     return this.priceCents.getValue() - discountValue;
   }
+
+  toJSON() {
+    return {
+      id: this.id.getValue(),
+      name: this.name,
+      description: this.description,
+      priceCents: this.priceCents.getValue(),
+      currencyCode: this.currencyCode.getValue(),
+      photosLimit: this.photosLimit.getValue(),
+      videosLimit: this.videosLimit.getValue(),
+      position: this.position.getValue(),
+    };
+  }
 }
