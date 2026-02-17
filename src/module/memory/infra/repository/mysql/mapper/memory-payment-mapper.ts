@@ -3,8 +3,8 @@ import { MemoryPayment } from "../../../../domain/entity/memory-payment";
 export type MemoryPaymentRow = {
   id: string;
   order_id: string;
-  provider: string;
-  provider_payment_id: string;
+  provider?: string;
+  provider_payment_id?: string;
   currency_code: string;
   amount: number;
   status: string;
