@@ -27,7 +27,7 @@ export class MemoryPayment1771329032633 implements MigrationInterface {
             name: "provider",
             type: "varchar",
             length: "45",
-            isNullable: false,
+            isNullable: true,
           },
           {
             name: "provider_payment_id",

@@ -5,6 +5,8 @@ export enum MemoryStatus {
   PENDING_PAYMENT = "PENDING_PAYMENT",
   /** O usuário iniciou o pagamento (checkout aberto, aguardando retorno do gateway). */
   PAYMENT_IN_PROGRESS = "PAYMENT_IN_PROGRESS",
+  /** O pagamento foi negado */
+  PAYMENT_FAILED = "PAYMENT_FAILED",
   /** O produto foi pago e está ativo/publicado. */
   ACTIVE = "ACTIVE",
   /** O produto foi desativado manualmente pelo usuário ou pelo sistema. */

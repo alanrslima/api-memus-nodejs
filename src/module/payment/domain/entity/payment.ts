@@ -5,9 +5,9 @@ export type PaymentConstructor = {
   id: string;
   status: string;
   amount: number;
+  provider?: string;
+  providerPaymentId?: string;
   currencyCode: string;
-  createdAt?: Date;
-  updatedAt?: Date;
 };
 
 export abstract class Payment {
@@ -15,16 +15,16 @@ export abstract class Payment {
   protected status: PaymentStatus;
   private amount: Price;
   private currencyCode: string;
-  protected createdAt: Date;
-  protected updatedAt: Date;
+  protected provider?: string;
+  protected providerPaymentId?: string;
 
   protected constructor(props: PaymentConstructor) {
     this.id = new ID(props.id);
     this.status = props.status as PaymentStatus;
     this.amount = new Price(props.amount);
     this.currencyCode = props.currencyCode;
-    this.createdAt = props.createdAt ?? new Date();
-    this.updatedAt = props.updatedAt ?? new Date();
+    this.provider = props.provider;
+    this.providerPaymentId = props.providerPaymentId;
   }
 
   getId(): string {
@@ -35,10 +35,6 @@ export abstract class Payment {
     return this.status;
   }
 
-  getCreatedAt(): Date {
-    return this.createdAt;
-  }
-
   getAmount(): number {
     return this.amount.getValue();
   }
@@ -47,26 +43,19 @@ export abstract class Payment {
     return this.currencyCode;
   }
 
-  getUpdatedAt(): Date {
-    return this.updatedAt;
-  }
-
-  markAsPaid(): void {
+  confirm(data: { provider: string; providerPaymentId: string }) {
+    this.provider = data.provider;
+    this.providerPaymentId = data.providerPaymentId;
     this.status = PaymentStatus.SUCCEEDED;
-    this.touch();
   }
 
-  markAsFailed(): void {
+  failed(data: { provider: string; providerPaymentId: string }): void {
+    this.provider = data.provider;
+    this.providerPaymentId = data.providerPaymentId;
     this.status = PaymentStatus.FAILED;
-    this.touch();
   }
 
   cancel(): void {
     this.status = PaymentStatus.CANCELED;
-    this.touch();
-  }
-
-  protected touch(): void {
-    this.updatedAt = new Date();
   }
 }

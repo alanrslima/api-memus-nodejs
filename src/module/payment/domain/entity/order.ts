@@ -45,6 +45,10 @@ export abstract class Order {
     this.status = OrderStatus.PAYMENT_SUCCEEDED;
   }
 
+  failedPayment() {
+    this.status = OrderStatus.PAYMENT_FAILED;
+  }
+
   waitingPayment() {
     this.status = OrderStatus.WAITING_PAYMENT;
   }

@@ -7,8 +7,6 @@ import { PaymentStatus } from "../../../payment/domain/enum/payment-status";
 
 type MemoryPaymentCreate = {
   orderId: string;
-  provider: string;
-  providerPaymentId: string;
   amount: number;
   currencyCode: string;
 };
@@ -20,14 +18,10 @@ type MemoryPaymentBuild = PaymentConstructor &
 
 export class MemoryPayment extends Payment {
   private orderId: ID;
-  private provider: string;
-  private providerPaymentId: string;
 
   private constructor(props: MemoryPaymentBuild) {
     super(props);
     this.orderId = new ID(props.orderId);
-    this.provider = props.provider;
-    this.providerPaymentId = props.providerPaymentId;
   }
 
   static create(props: MemoryPaymentCreate): MemoryPayment {
@@ -46,11 +40,11 @@ export class MemoryPayment extends Payment {
     return this.orderId.getValue();
   }
 
-  getProvider(): string {
+  getProvider(): string | undefined {
     return this.provider;
   }
 
-  getProviderPaymentId(): string {
+  getProviderPaymentId(): string | undefined {
     return this.providerPaymentId;
   }
 }

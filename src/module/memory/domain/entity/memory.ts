@@ -9,6 +9,7 @@ import { NaturalNumber } from "../value-object/natural-number";
 import { Guest } from "./guest";
 import { Image } from "./image";
 import { MediaRegistry } from "./media-registry";
+import { MemoryOrder } from "./memory-order";
 import { Plan } from "./plan";
 
 type CreateProps = {
@@ -253,10 +254,18 @@ export class Memory {
     this.coverImage = coverImage;
   }
 
-  confirmPayment(plan: Plan) {
-    this.videosGranted = new NaturalNumber(plan.getVideosLimit());
-    this.photosGranted = new NaturalNumber(plan.getPhotosLimit());
+  confirmPayment(order: MemoryOrder) {
+    this.videosGranted = new NaturalNumber(
+      order.getMemoryPlan().getVideosLimit(),
+    );
+    this.photosGranted = new NaturalNumber(
+      order.getMemoryPlan().getPhotosLimit(),
+    );
     this.status = MemoryStatus.ACTIVE;
+  }
+
+  failedPayment() {
+    this.status = MemoryStatus.PAYMENT_FAILED;
   }
 
   pendingPayment() {

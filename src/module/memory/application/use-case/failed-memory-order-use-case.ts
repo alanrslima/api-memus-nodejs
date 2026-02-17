@@ -2,7 +2,7 @@ import { UseCase } from "../../../common";
 import { MemoryPaymentNotFoundError } from "../../error/memory-payment-not-found-error";
 import { UnitOfWorkMemory } from "../contract/unit-of-work-memory";
 
-export class ConfirmMemoryOrderUseCase implements UseCase<Input, Output> {
+export class FailedMemoryOrderUseCase implements UseCase<Input, Output> {
   constructor(private readonly unitOfWorkMemory: UnitOfWorkMemory) {}
 
   async execute(input: Input): Promise<Output> {
@@ -18,19 +18,20 @@ export class ConfirmMemoryOrderUseCase implements UseCase<Input, Output> {
         const memory = await memoryRepository.getById(
           memoryOrder.getMemoryId(),
         );
+
         const memoryPayment = await memoryPaymentRepository.getById(
           input.memoryPaymentId,
         );
         if (!memoryPayment) throw new MemoryPaymentNotFoundError();
-        memoryPayment.confirm({
+        memoryPayment.failed({
           provider: input.provider,
           providerPaymentId: input.providerPaymentId,
         });
-        memoryOrder.confirmPayment();
-        memory.confirmPayment(memoryOrder);
+        memoryOrder.failedPayment();
+        memory.failedPayment();
+        await memoryPaymentRepository.update(memoryPayment);
         await memoryOrderRepository.update(memoryOrder);
         await memoryRepository.update(memory);
-        await memoryPaymentRepository.update(memoryPayment);
       },
     );
   }

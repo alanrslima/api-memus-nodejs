@@ -1,4 +1,5 @@
 import { Memory } from "../../../domain/entity/memory";
+import { MemoryOrder } from "../../../domain/entity/memory-order";
 import { Plan } from "../../../domain/entity/plan";
 import { MemoryNotReadyError } from "../../../error/memory-not-ready-error";
 import { StorageMemoryGateway } from "../../../infra/gateway/memory/storage-memory-gateway";
@@ -22,7 +23,16 @@ it("should update media counter at memory after create", async () => {
     userId: "123",
     isPrivate: false,
   });
-  memory.confirmPayment(plan);
+  const order = MemoryOrder.create({
+    currencyCode: plan.getCurrencyCode(),
+    discount: 0,
+    memoryId: memory.getId(),
+    memoryPlan: plan,
+    price: plan.getPriceCents(),
+    total: plan.getPriceCents(),
+    userId: memory.getUserId(),
+  });
+  memory.confirmPayment(order);
   const memoryRepository = new MemoryMemoryRepository([memory]);
   const mediaRegistryRepository = new MediaRegistryMemoryRepository();
   const storageGateway = new StorageMemoryGateway();
@@ -59,7 +69,16 @@ it("should not create a registry if the memory plan is full", async () => {
     userId: "123",
     isPrivate: false,
   });
-  memory.confirmPayment(plan);
+  const order = MemoryOrder.create({
+    currencyCode: plan.getCurrencyCode(),
+    discount: 0,
+    memoryId: memory.getId(),
+    memoryPlan: plan,
+    price: plan.getPriceCents(),
+    total: plan.getPriceCents(),
+    userId: memory.getUserId(),
+  });
+  memory.confirmPayment(order);
   const memoryRepository = new MemoryMemoryRepository([memory]);
   const mediaRegistryRepository = new MediaRegistryMemoryRepository();
   const storageGateway = new StorageMemoryGateway();

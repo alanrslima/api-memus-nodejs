@@ -9,10 +9,6 @@ export enum OrderStatus {
   CAPTURED = "CAPTURED",
   /** Pagamento aguardando confirmação do cliente (ex: boleto emitido, PIX agendado). */
   WAITING_PAYMENT = "WAITING_PAYMENT",
-  /** Pagamento recebido com sucesso e confirmado. */
-  PAID = "PAID",
-  /** Pagamento falhou (erro de gateway, cartão recusado, etc). */
-  FAILED = "FAILED",
   /** Pagamento expirou (tempo limite atingido sem conclusão). */
   EXPIRED = "EXPIRED",
   /** Valor devolvido ao cliente (reembolso total). */
@@ -23,6 +19,8 @@ export enum OrderStatus {
   CHARGEBACK = "CHARGEBACK",
   /** Pagamento cancelado antes da captura ou conclusão. */
   CANCELED = "CANCELED",
+  /** Pagamento recebido com sucesso e confirmado. */
   PAYMENT_SUCCEEDED = "PAYMENT_SUCCEEDED",
+  /** Pagamento falhou (erro de gateway, cartão recusado, etc). */
   PAYMENT_FAILED = "PAYMENT_FAILED",
 }
