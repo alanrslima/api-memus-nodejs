@@ -1,7 +1,7 @@
 import { BaseError, BaseErrorSerializeProps } from "../../common";
 
 export class ForbiddenError extends BaseError {
-  statusCode = 400;
+  statusCode = 403;
 
   constructor() {
     super("Forbidden error");
