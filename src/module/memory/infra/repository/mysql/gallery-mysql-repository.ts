@@ -9,6 +9,9 @@ type MediaRegistryRow = {
   name: string;
   mimetype: string;
   url: string;
+  user_name: string;
+  user_profile_url: string;
+  created_at: string;
 };
 
 export class GalleryMysqlRepository implements GalleryRepository {
@@ -29,10 +32,11 @@ export class GalleryMysqlRepository implements GalleryRepository {
   ): Promise<GalleryDTO> {
     const offset = (page.getValue() - 1) * perPage.getValue();
     let query = `
-      SELECT id, name, mimetype, url 
-      FROM media_registry 
-      WHERE memory_id = ? AND status = 'ready' 
-      ORDER BY created_at DESC 
+      SELECT a.id, a.name, a.mimetype, a.url, a.created_at, b.name as user_name, b.profile_url as user_profile_url
+      FROM media_registry a
+      LEFT JOIN user b ON a.user_id = b.id
+      WHERE a.memory_id = ? AND a.status = 'ready'
+      ORDER BY a.created_at DESC 
       LIMIT ? OFFSET ?`;
     const mediaResponse = await this.manager.query<MediaRegistryRow[]>(query, [
       memoryId.getValue(),
@@ -55,6 +59,13 @@ export class GalleryMysqlRepository implements GalleryRepository {
           name: item.name,
           mimetype: item.mimetype,
           url,
+          createdAt: item.created_at,
+          user: item.user_name
+            ? {
+                name: item.user_name,
+                profileUrl: item.user_profile_url,
+              }
+            : null,
         };
       }),
     );
