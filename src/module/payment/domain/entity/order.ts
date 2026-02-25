@@ -80,4 +80,8 @@ export abstract class Order {
   getStatus(): string {
     return this.status;
   }
+
+  isFree(): boolean {
+    return this.total.getValue() <= 0;
+  }
 }

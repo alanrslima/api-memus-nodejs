@@ -37,14 +37,23 @@ export class CreateMemoryOrderIntentUseCase implements UseCase<Input, Output> {
           total: total,
           currencyCode: plan.getCurrencyCode(),
         });
+
+        // Caso o plano seja gratuido, o gateway de pagamento não é ativado e o album é confirmado como pronto para uso.
+        if (memoryOrder.isFree()) {
+          memoryOrder.confirmPayment();
+          memory.confirmPayment(memoryOrder);
+          await memoryRepository.update(memory);
+          return { token: null };
+        }
+
         const memoryPayment = MemoryPayment.create({
           amount: total,
           currencyCode: plan.getCurrencyCode(),
           orderId: memoryOrder.getId(),
         });
         memory.pendingPayment();
-        await memoryOrderRepository.create(memoryOrder);
         await memoryRepository.update(memory);
+        await memoryOrderRepository.create(memoryOrder);
         await memoryPaymentRepository.create(memoryPayment);
         const { token } = await this.paymentGateway.createPaymentIntent({
           amount: plan.calculateFinalPrice(),

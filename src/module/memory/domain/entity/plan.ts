@@ -11,11 +11,11 @@ type CreateProps = {
   photosLimit: number;
   videosLimit: number;
   position: number;
+  discount?: Discount;
 };
 
 type BuildProps = CreateProps & {
   id: string;
-  discount?: Discount;
 };
 
 export class Plan {
