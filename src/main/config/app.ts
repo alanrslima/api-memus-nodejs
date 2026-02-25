@@ -1,7 +1,11 @@
 import "express-async-errors";
+import "../../../instrument";
+
 import https from "https";
 import http from "http";
 import express from "express";
+import Sentry from "@sentry/node";
+
 import { setupMiddleware } from "./middleware";
 import { errorHandler } from "../middleware/error-handler";
 import fs from "node:fs";
@@ -31,6 +35,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/memory", memoryRouter);
 app.use("/api/geolocation", geolocationRouter);
 
+Sentry.setupExpressErrorHandler(app);
 app.use(errorHandler);
 
 export default server;
