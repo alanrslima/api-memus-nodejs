@@ -1,5 +1,5 @@
 import "express-async-errors";
-import "../../../instrument";
+import "../../instrument";
 
 import https from "https";
 import http from "http";

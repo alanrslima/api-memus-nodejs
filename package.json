@@ -9,7 +9,7 @@
     "test:unit:watch": "jest -c jest.config.unit.js --detectOpenHandles --forceExit --watch-all",
     "test:integration": "jest -c jest.config.integration.js --detectOpenHandles --forceExit --silent",
     "build": "rimraf dist && tsc",
-    "start": "node ./dist/src/main/server.js",
+    "start": "node ./dist/main/server.js",
     "dev": "tsx watch ./src/main/server.ts",
     "migration:create": "typeorm migration:create ./src/module/common/infra/data-source/mysql-migrations/$npm_config_name",
     "migration:run": "typeorm -d ./src/module/common/infra/data-source/mysql-data-source.ts -- migration:run",
