@@ -1,10 +1,10 @@
 import "express-async-errors";
-import "../../instrument";
+import "../infra/observability/sentry";
+import Sentry from "@sentry/node";
 
 import https from "https";
 import http from "http";
 import express from "express";
-import Sentry from "@sentry/node";
 
 import { setupMiddleware } from "./middleware";
 import { errorHandler } from "../middleware/error-handler";
@@ -14,6 +14,7 @@ import { authRouter } from "../../module/auth";
 import { memoryRouter } from "../../module/memory";
 import { geolocationRouter } from "../../module/geolocation";
 import { setupEventListener } from "./event-listener";
+import { env } from "../../module/common";
 
 const app = express();
 
