@@ -16,11 +16,10 @@ export class StorageR2Gateway implements StorageGateway {
   private bucketName: string;
 
   constructor() {
-    this.bucketName = "story-keep-prd";
+    this.bucketName = env.R2_STORAGE_BUCKET_NAME;
     this.r2Client = new S3Client({
       region: "auto",
-      endpoint:
-        "https://77d163c388d88955814279a74ef0f571.r2.cloudflarestorage.com",
+      endpoint: env.R2_STORAGE_ENDPOINT,
       credentials: {
         accessKeyId: env.R2_STORAGE_ACCESS_KEY_ID,
         secretAccessKey: env.R2_STORAGE_SECRET_ACCESS_KEY,
@@ -50,7 +49,7 @@ export class StorageR2Gateway implements StorageGateway {
 
   async getSignedUploadUrl(
     filename: string,
-    config: { expiresIn: number; contentLength?: number; contentType?: string }
+    config: { expiresIn: number; contentLength?: number; contentType?: string },
   ): Promise<{ url: string }> {
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
@@ -66,7 +65,7 @@ export class StorageR2Gateway implements StorageGateway {
 
   async getSignedGetUrl(
     filename: string,
-    config: { expiresIn: number }
+    config: { expiresIn: number },
   ): Promise<{ url: string }> {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,

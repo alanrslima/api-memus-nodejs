@@ -7,7 +7,7 @@ type EnvConfig = {
   defaultValue?: string;
 };
 
-const envVariables: Record<string, EnvConfig> = {
+const envVariables = {
   NODE_ENV: {
     description:
       "Ambiente da aplicação. Valores suportados = development | staging | production",
@@ -47,6 +47,14 @@ const envVariables: Record<string, EnvConfig> = {
     description: "ID Chave de acesso para storage Cloudfare R2",
     required: true,
   },
+  R2_STORAGE_BUCKET_NAME: {
+    description: "Nome do bucket no storage Cloudfare R2",
+    required: true,
+  },
+  R2_STORAGE_ENDPOINT: {
+    description: "Endpoint de conexão com storage Cloudfare R2",
+    required: true,
+  },
   R2_STORAGE_SECRET_ACCESS_KEY: {
     description: "Chave secreta de acesso para storage Cloudfare R2",
     required: true,
@@ -80,28 +88,30 @@ const envVariables: Record<string, EnvConfig> = {
   SENTRY_DSN: {
     description: "DSN de conexão com Sentry",
   },
-};
+} satisfies Record<string, EnvConfig>;
 
 const envsMapper: { [key in keyof typeof envVariables]: string } = {} as {
   [key in keyof typeof envVariables]: string;
 };
 
-Object.keys(envVariables).forEach((key) => {
-  const config = envVariables[key];
-  const value = process.env[key];
+(Object.keys(envVariables) as Array<keyof typeof envVariables>).forEach(
+  (key) => {
+    const config = envVariables[key] as EnvConfig;
+    const value = process.env[key];
 
-  if (!value?.length) {
-    if (config.required) {
-      throw new Error(
-        `Expected env variable "${key}" not found. Description: ${config.description}`,
-      );
+    if (!value?.length) {
+      if (config.required) {
+        throw new Error(
+          `Expected env variable "${key}" not found. Description: ${config.description}`,
+        );
+      }
+      if (config.defaultValue !== undefined) {
+        envsMapper[key] = config.defaultValue;
+      }
+      return;
     }
-    if (config.defaultValue !== undefined) {
-      envsMapper[key as keyof typeof envVariables] = config.defaultValue;
-    }
-    return;
-  }
-  envsMapper[key as keyof typeof envVariables] = value;
-});
+    envsMapper[key] = value;
+  },
+);
 
 export const env = Object.freeze(envsMapper);

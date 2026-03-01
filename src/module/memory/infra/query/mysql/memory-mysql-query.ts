@@ -46,8 +46,8 @@ export class MemoryMysqlQuery implements MemoryQuery {
       countryCode: data.address_country_code,
       postcode: data.address_postcode,
       state: data.address_state,
-      longitude: data.address_longitude,
-      latitude: data.address_latitude,
+      longitude: Number(data.address_longitude),
+      latitude: Number(data.address_latitude),
       formatted: formattedAddress,
     };
   }
